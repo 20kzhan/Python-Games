@@ -41,15 +41,70 @@ def print_board(board_2d):
 
 def place_new_value(board_2d):
     value = 0
-    if randint(0, 10) != 10:
-        value = 4
-    else:
+    if randint(0, 9) != 9:
         value = 2
+    else:
+        value = 4
     while True:
-        x = randint(0, len(board_2d[0]))
-        y = randint(0, len(board_2d))
+        x = randint(0, len(board_2d[0])-1)
+        y = randint(0, len(board_2d)-1)
         if board_2d[y][x] == 0:
             board_2d[y][x] = value
             break
 
-print_board(game_board)
+
+def game_over(board_2d):
+    for each_row in board_2d:
+        for i in range(len(board_2d[0])):
+            if each_row[i] == 0:
+                return False
+    return True
+
+
+def shift_cells(original_list):
+    temporary_list = []
+    final_list = []
+
+    for element in original_list:
+        if element != 0:
+            temporary_list.append(element)
+
+    while len(temporary_list) < len(original_list):
+        temporary_list.append(0)
+
+    count_var = 0
+    flag_var = 0
+    if len(temporary_list) % 2 == 0:
+        temporary_list.append(0)
+
+    while count_var < len(temporary_list) - 1:
+        if temporary_list[count_var] == temporary_list[count_var + 1] and temporary_list[count_var] != 0:
+            add = 2 * temporary_list[count_var]
+            final_list.append(add)
+            count_var = count_var + 2
+        else:
+            flag_var = flag_var + 1
+            final_list.append(temporary_list[count_var])
+            count_var = count_var + 1
+    if count_var < len(temporary_list):
+        final_list.append(temporary_list[count_var])
+
+    final_count = len(final_list)
+    original_count = len(original_list)
+
+    while final_count < original_count:
+        final_list.append(0)
+        final_count = final_count + 1
+
+    if flag_var == len(original_list):
+        temporary_list.pop()
+        print(temporary_list)
+    else:
+        print(final_list)
+        
+
+# directions are: 0: up, 1: right, 2: down, 3: left
+def play(gb, direction):
+    print("Direction: ", direction)
+
+
