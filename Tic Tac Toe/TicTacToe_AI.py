@@ -33,6 +33,31 @@ if os.name == "nt":
     ci.visible = False
     ctypes.windll.kernel32.SetConsoleCursorInfo(handle, ctypes.byref(ci))
 
+
+def get_stats(board2d):
+    ncorners = 0
+    nsides = 0
+    ncenter = 0
+    if board2d[0][0] == 1:
+        ncorners += 1
+    if board2d[0][1] == 1:
+        nsides += 1
+    if board2d[0][2] == 1:
+        ncorners += 1
+    if board2d[1][0] == 1:
+        nsides += 1
+    if board2d[1][2] == 1:
+        nsides += 1
+    if board2d[1][1] == 1:
+        ncenter += 1
+    if board2d[2][0] == 1:
+        ncorners += 1
+    if board2d[2][1] == 1:
+        nsides += 1
+    if board2d[2][2] == 1:
+        ncorners += 1
+    return (ncorners, nsides, ncenter)
+
 def ai_next_move(board_2d, turn_count):
     if block(board_2d):
         board_2d[block(board_2d)[0]][block(board_2d)[1]] = 2
@@ -209,25 +234,6 @@ def check_pos_clear(board_2d, row, col):
     else:
         return False
 
-gb = [[2, 2, 0],[0, 0, 0],[0, 0, 0]]
-gb2 = [[2, 0, 0],[0, 2, 0],[0, 0, 0]]
-gb3 = [[2, 0, 0],[2, 0, 0],[0, 0, 0]]
-
-print_board(gb)
-input('Press Enter to see next sample board')
-finish_board(gb)
-print_board(gb)
-input('Press Enter to see next sample board')
-print_board(gb2)
-input('Press Enter to see next sample board')
-finish_board(gb2)
-print_board(gb2)
-input('Press Enter to see next sample board')
-print_board(gb3)
-input('Press Enter to see next sample board')
-finish_board(gb3)
-print_board(gb3)
-os.system(exit())
 
 game_board = [[1, 0, 0],
               [0, 0, 0],
@@ -239,22 +245,19 @@ print_board(game_board)
 last_turn_taken = 1
 
 while True:
-    # if last_turn_taken == 'X':
-    #     for i in range(len(game_board[0])):
-    #         if keyboard.is_pressed(str(i+1)) and game_board[0][i] == 0:
-    #             update_board(game_board, 0, i, 2)
-    #             last_turn_taken = 'O'
-    #             break
-    #     for i in range(len(game_board[0])):
-    #         if keyboard.is_pressed(str(i+1)) and game_board[1][i] == 0:
-    #             update_board(game_board, 1, i, 2)
-    #             last_turn_taken = 'O'
-    #             break
-    #     for i in range(len(game_board[0])):
-    #         if keyboard.is_pressed(str(i+1)) and game_board[2][i] == 0:
-    #             update_board(game_board, 2, i, 2)
-    #             last_turn_taken = 'O'
-    #             break
+    if last_turn_taken == -1:
+        ai_next_move(game_board)
+        print_board(game_board)
+        if check_game_over(game_board)[0] == True and check_game_over(game_board)[1] != 0:
+            print(Fore.WHITE + '\033[{};5H'.format(BOARD_ROW + 7) + "                                ")
+            print(Fore.WHITE + '\033[{};17H'.format(BOARD_ROW + 6) + str(check_game_over(game_board)[1]) + ' Wins!')
+            break
+        # elif check_game_over(game_board)[0] == True and check_game_over(game_board)[1] == 'X':
+        #     print(Fore.WHITE + '\033[{};5H'.format(BOARD_ROW + 7) + "                                ")
+        #     print(Fore.WHITE + '\033[{};17H'.format(BOARD_ROW + 6) + str(check_game_over(game_board)[1]) + ' Wins!')
+        #     break
+        last_turn_taken *= -1
+
     if msvcrt.kbhit():
         c = msvcrt.getch()
         if c == b'1' and check_pos_clear(game_board, 0, 0):
@@ -297,12 +300,17 @@ while True:
             print(Fore.WHITE + '\033[{};5H'.format(BOARD_ROW + 8) + "Error: invalid move or spot is already taken!")
         if check_game_over(game_board)[0]:
             print(Fore.WHITE + '\033[{};5H'.format(BOARD_ROW + 7) + "                                ")
-            print(Fore.WHITE + '\033[{};17H'.format(BOARD_ROW + 6) + check_game_over(game_board)[1] + ' Wins!')
+            print(Fore.WHITE + '\033[{};17H'.format(BOARD_ROW + 6) + str(check_game_over(game_board)[1]) + ' Wins!')
             os.system(exit())
 
     # 1 is O
 
-    if last_turn_taken == 1:
+    if last_turn_taken == -1:
+        print(Fore.WHITE + '\033[{};5H'.format(BOARD_ROW + 7) + "X's turn, please make your move:")
+    else:
         print(Fore.WHITE + '\033[{};5H'.format(BOARD_ROW + 7) + "O's turn, please make your move:")
+
+
+
 
 
