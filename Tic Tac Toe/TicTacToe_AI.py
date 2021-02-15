@@ -65,9 +65,10 @@ def block(board_2d):
                 each_row[i] = 1
                 if check_game_over(board_2d)[0]:
                     each_row[i] = 2
-                    return
+                    return True
                 else:
                     each_row[i] = 0
+    return False
 
 def finish_board(board_2d):
     for each_row in board_2d:
@@ -75,9 +76,10 @@ def finish_board(board_2d):
             if each_row[i] == 0:
                 each_row[i] = 2
                 if check_game_over(board_2d)[0]:
-                    return
+                    return True
                 else:
                     each_row[i] = 0
+    return False
 
 def ai_next_move(board_2d):
     # input('ai used next move')
@@ -97,40 +99,38 @@ def ai_next_move(board_2d):
         if get_stats(board_2d)[2] == 0:
             board_2d[1][1] = 2
             # input('ai ended turn0  ')
-            return
-        while True:
-            i_dont_know_col = random.randint(0, 2)
-            i_dont_know_row = random.randint(0, 2)
-            if board_2d[i_dont_know_row][i_dont_know_col] == 0:
-                board_2d[i_dont_know_row][i_dont_know_col] = 2
-                break
-        return
-    elif get_stats(board_2d)[0] == 1 and get_stats(board_2d)[1] == 1:
-        if board_2d[2][1] == 1 or board_2d[1][2] == 1:
-            board_2d[2][2] = 2
-            # input('ai ended turn1  ')
-            return
         else:
             board_2d[0][0] = 2
-            # input('ai ended turn2  ')
-            return
-    elif get_stats(board_2d)[0] == 2:
-        if board_2d[0][0] == 1 and board_2d[2][2] == 1 and turns_taken == 3 and board_2d[0][1] == 0:
+        return
+    elif turns_taken == 3:
+        # handling all the special cases
+        if get_stats(board_2d)[0] == 1 and get_stats(board_2d)[1] == 1:
+            if board_2d[2][1] == 1 or board_2d[1][2] == 1:
+                board_2d[2][2] = 2
+                return
+            else:
+                board_2d[0][0] = 2
+                return
+        elif get_stats(board_2d)[0] == 2:
             board_2d[0][1] = 2
-            # input('ai ended turn3  ')
             return
-    elif get_stats(board_2d)[1] == 2:
-        if board_2d[2][1] == board_2d[1][2] == 1 and turns_taken == 2:
-            board_2d[0][0] = 2
-            # input('ai ended turn4  ')
+        elif get_stats(board_2d)[1] == 2:
+            if board_2d[2][1] == board_2d[1][2] == 1:
+                board_2d[2][2] = 2
+            else:
+                board_2d[0][0] = 2
             return
-    # while True:
-    #     i_dont_know_col = random.randint(0, 2)
-    #     i_dont_know_row = random.randint(0, 2)
-    #     if board_2d[i_dont_know_row][i_dont_know_col] == 0:
-    #         board_2d[i_dont_know_row][i_dont_know_col] = 2
-    #         input('ai ended turn5  ')
-    #         return
+        elif get_stats(board_2d)[0] == 1 and get_stats(board_2d)[2] == 1:
+            board_2d[0][2] = 2
+            return
+    else:
+        # find any random empty spot!
+        while True:
+            row = randint(0,2)
+            col = randint(0,2)
+            if board_2d[row][col] == 0:
+                board_2d[row][col] = 2
+                return
 
 
 '''
@@ -271,91 +271,94 @@ def check_pos_clear(board_2d, row, col):
     else:
         return False
 
-
-game_board = [[0, 0, 0],
-              [0, 0, 0],
-              [0, 0, 0]]
-
-print_board(game_board)
-# print(check_game_over(game_board))
-
-last_turn_taken = 1
-
 while True:
-    if last_turn_taken == -1:
-        ai_next_move(game_board)
-        print_board(game_board)
-        if check_game_over(game_board)[0] == True and check_game_over(game_board)[1] != 0:
-            print(Fore.WHITE + '\033[{};5H'.format(BOARD_ROW + 7) + "                                ")
-            print(Fore.WHITE + '\033[{};17H'.format(BOARD_ROW + 6) + str(check_game_over(game_board)[1]) + ' Wins!')
-            os.system(exit())
-        elif check_game_over(game_board)[0]:
-            print(Fore.WHITE + '\033[{};5H'.format(BOARD_ROW + 7) + "                                ")
-            print(Fore.WHITE + '\033[{};15H'.format(BOARD_ROW + 6) + "It's a tie!")
-            os.system(exit())
-        # elif check_game_over(game_board)[0] == True and check_game_over(game_board)[1] == 'X':
-        #     print(Fore.WHITE + '\033[{};5H'.format(BOARD_ROW + 7) + "                                ")
-        #     print(Fore.WHITE + '\033[{};17H'.format(BOARD_ROW + 6) + str(check_game_over(game_board)[1]) + ' Wins!')
-        #     break
-        last_turn_taken *= -1
+    game_board = [[0, 0, 0],
+                  [0, 0, 0],
+                  [0, 0, 0]]
 
-    if msvcrt.kbhit():
-        c = msvcrt.getch()
-        if c == b'1' and check_pos_clear(game_board, 0, 0):
-            update_board(game_board, 0, 0, last_turn_taken)
+    print_board(game_board)
+    # print(check_game_over(game_board))
+
+    last_turn_taken = 1
+
+    while True:
+        if last_turn_taken == -1:
+            ai_next_move(game_board)
             print_board(game_board)
+            if check_game_over(game_board)[0] == True and check_game_over(game_board)[1] != 0:
+                print(Fore.WHITE + '\033[{};5H'.format(BOARD_ROW + 7) + "                                ")
+                print(Fore.WHITE + '\033[{};17H'.format(BOARD_ROW + 6) + str(check_game_over(game_board)[1]) + ' Wins!')
+                break
+            elif check_game_over(game_board)[0]:
+                print(Fore.WHITE + '\033[{};5H'.format(BOARD_ROW + 7) + "                                ")
+                print(Fore.WHITE + '\033[{};15H'.format(BOARD_ROW + 6) + "It's a tie!")
+                break
+            # elif check_game_over(game_board)[0] == True and check_game_over(game_board)[1] == 'X':
+            #     print(Fore.WHITE + '\033[{};5H'.format(BOARD_ROW + 7) + "                                ")
+            #     print(Fore.WHITE + '\033[{};17H'.format(BOARD_ROW + 6) + str(check_game_over(game_board)[1]) + ' Wins!')
+            #     break
             last_turn_taken *= -1
-        elif c == b'2' and check_pos_clear(game_board, 0, 1):
-            update_board(game_board, 0, 1, last_turn_taken)
-            print_board(game_board)
-            last_turn_taken *= -1
-        elif c == b'3' and check_pos_clear(game_board, 0, 2):
-            update_board(game_board, 0, 2, last_turn_taken)
-            print_board(game_board)
-            last_turn_taken *= -1
-        elif c == b'4' and check_pos_clear(game_board, 1, 0):
-            update_board(game_board, 1, 0, last_turn_taken)
-            print_board(game_board)
-            last_turn_taken *= -1
-        elif c == b'5' and check_pos_clear(game_board, 1, 1):
-            update_board(game_board, 1, 1, last_turn_taken)
-            print_board(game_board)
-            last_turn_taken *= -1
-        elif c == b'6' and check_pos_clear(game_board, 1, 2):
-            update_board(game_board, 1, 2, last_turn_taken)
-            print_board(game_board)
-            last_turn_taken *= -1
-        elif c == b'7' and check_pos_clear(game_board, 2, 0):
-            update_board(game_board, 2, 0, last_turn_taken)
-            print_board(game_board)
-            last_turn_taken *= -1
-        elif c == b'8' and check_pos_clear(game_board, 2, 1):
-            update_board(game_board, 2, 1, last_turn_taken)
-            print_board(game_board)
-            last_turn_taken *= -1
-        elif c == b'9' and check_pos_clear(game_board, 2, 2):
-            update_board(game_board, 2, 2, last_turn_taken)
-            print_board(game_board)
-            last_turn_taken *= -1
+
+        if msvcrt.kbhit():
+            c = msvcrt.getch()
+            if c == b'1' and check_pos_clear(game_board, 0, 0):
+                update_board(game_board, 0, 0, last_turn_taken)
+                print_board(game_board)
+                last_turn_taken *= -1
+            elif c == b'2' and check_pos_clear(game_board, 0, 1):
+                update_board(game_board, 0, 1, last_turn_taken)
+                print_board(game_board)
+                last_turn_taken *= -1
+            elif c == b'3' and check_pos_clear(game_board, 0, 2):
+                update_board(game_board, 0, 2, last_turn_taken)
+                print_board(game_board)
+                last_turn_taken *= -1
+            elif c == b'4' and check_pos_clear(game_board, 1, 0):
+                update_board(game_board, 1, 0, last_turn_taken)
+                print_board(game_board)
+                last_turn_taken *= -1
+            elif c == b'5' and check_pos_clear(game_board, 1, 1):
+                update_board(game_board, 1, 1, last_turn_taken)
+                print_board(game_board)
+                last_turn_taken *= -1
+            elif c == b'6' and check_pos_clear(game_board, 1, 2):
+                update_board(game_board, 1, 2, last_turn_taken)
+                print_board(game_board)
+                last_turn_taken *= -1
+            elif c == b'7' and check_pos_clear(game_board, 2, 0):
+                update_board(game_board, 2, 0, last_turn_taken)
+                print_board(game_board)
+                last_turn_taken *= -1
+            elif c == b'8' and check_pos_clear(game_board, 2, 1):
+                update_board(game_board, 2, 1, last_turn_taken)
+                print_board(game_board)
+                last_turn_taken *= -1
+            elif c == b'9' and check_pos_clear(game_board, 2, 2):
+                update_board(game_board, 2, 2, last_turn_taken)
+                print_board(game_board)
+                last_turn_taken *= -1
+            else:
+                print(Fore.WHITE + '\033[{};5H'.format(BOARD_ROW + 8) + "Error: invalid move or spot is already taken!")
+            if check_game_over(game_board)[0] and check_game_over(game_board)[1] != 0:
+                print(Fore.WHITE + '\033[{};5H'.format(BOARD_ROW + 7) + "                                ")
+                print(Fore.WHITE + '\033[{};17H'.format(BOARD_ROW + 6) + str(check_game_over(game_board)[1]) + ' Wins!')
+                break
+            elif check_game_over(game_board)[0]:
+                print(Fore.WHITE + '\033[{};5H'.format(BOARD_ROW + 7) + "                                ")
+                print(Fore.WHITE + '\033[{};15H'.format(BOARD_ROW + 6) + "It's a tie!")
+                break
+
+        # 1 is O
+
+        if last_turn_taken == -1:
+            print(Fore.WHITE + '\033[{};5H'.format(BOARD_ROW + 7) + "X's turn, please make your move:")
         else:
-            print(Fore.WHITE + '\033[{};5H'.format(BOARD_ROW + 8) + "Error: invalid move or spot is already taken!")
-        if check_game_over(game_board)[0] and check_game_over(game_board)[1] != 0:
-            print(Fore.WHITE + '\033[{};5H'.format(BOARD_ROW + 7) + "                                ")
-            print(Fore.WHITE + '\033[{};17H'.format(BOARD_ROW + 6) + str(check_game_over(game_board)[1]) + ' Wins!')
-            os.system(exit())
-        elif check_game_over(game_board)[0]:
-            print(Fore.WHITE + '\033[{};5H'.format(BOARD_ROW + 7) + "                                ")
-            print(Fore.WHITE + '\033[{};15H'.format(BOARD_ROW + 6) + "It's a tie!")
-            os.system(exit())
-
-    # 1 is O
-
-    if last_turn_taken == -1:
-        print(Fore.WHITE + '\033[{};5H'.format(BOARD_ROW + 7) + "X's turn, please make your move:")
-    else:
-        print(Fore.WHITE + '\033[{};5H'.format(BOARD_ROW + 7) + "O's turn, please make your move:")
+            print(Fore.WHITE + '\033[{};5H'.format(BOARD_ROW + 7) + "O's turn, please make your move:")
 
 
 
 
-
+    input(Fore.WHITE + '\033[{};5H'.format(BOARD_ROW + 8) + '         Restart Game?                          ')
+    os.system('cls')
+    print_board(game_board)
+    print(Fore.WHITE + '\033[{};5H'.format(BOARD_ROW + 7) + "O's turn, please make your move:")
