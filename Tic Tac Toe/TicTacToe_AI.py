@@ -58,23 +58,6 @@ def get_stats(board2d):
         ncorners += 1
     return (ncorners, nsides, ncenter)
 
-def ai_next_move(board_2d, turn_count):
-    if block(board_2d):
-        board_2d[block(board_2d)[0]][block(board_2d)[1]] = 2
-        return
-    turn_count += 1
-    if turn_count == 1:
-        if board_2d[1][1] == 0:
-            board_2d[1][1] = 2
-            return
-        while True:
-            i_dont_know_col = random.randint(0, 2)
-            i_dont_know_row = random.randint(0, 2)
-            if board_2d[i_dont_know_row][i_dont_know_col] == 0:
-                board_2d[i_dont_know_row][i_dont_know_col] = 2
-                break
-    # to be continued (ughhhhhhhh)
-
 def block(board_2d):
     for each_row in board_2d:
         for i in range(len(each_row)):
@@ -85,6 +68,70 @@ def block(board_2d):
                     return
                 else:
                     each_row[i] = 0
+
+def finish_board(board_2d):
+    for each_row in board_2d:
+        for i in range(len(each_row)):
+            if each_row[i] == 0:
+                each_row[i] = 2
+                if check_game_over(board_2d)[0]:
+                    return
+                else:
+                    each_row[i] = 0
+
+def ai_next_move(board_2d):
+    # input('ai used next move')
+    turns_taken = 0
+    for each_row in board_2d:
+        for i in range(len(each_row)):
+            if each_row[i] != 0:
+                turns_taken += 1
+    # input(turns_taken)
+    if finish_board(board_2d):
+        # input('ai used finish board')
+        return
+    elif block(board_2d):
+        # input('ai used block')
+        return
+    elif turns_taken == 1:
+        if get_stats(board_2d)[2] == 0:
+            board_2d[1][1] = 2
+            # input('ai ended turn0  ')
+            return
+        while True:
+            i_dont_know_col = random.randint(0, 2)
+            i_dont_know_row = random.randint(0, 2)
+            if board_2d[i_dont_know_row][i_dont_know_col] == 0:
+                board_2d[i_dont_know_row][i_dont_know_col] = 2
+                break
+        return
+    elif get_stats(board_2d)[0] == 1 and get_stats(board_2d)[1] == 1:
+        if board_2d[2][1] == 1 or board_2d[1][2] == 1:
+            board_2d[2][2] = 2
+            # input('ai ended turn1  ')
+            return
+        else:
+            board_2d[0][0] = 2
+            # input('ai ended turn2  ')
+            return
+    elif get_stats(board_2d)[0] == 2:
+        if board_2d[0][0] == 1 and board_2d[2][2] == 1 and turns_taken == 3 and board_2d[0][1] == 0:
+            board_2d[0][1] = 2
+            # input('ai ended turn3  ')
+            return
+    elif get_stats(board_2d)[1] == 2:
+        if board_2d[2][1] == board_2d[1][2] == 1 and turns_taken == 2:
+            board_2d[0][0] = 2
+            # input('ai ended turn4  ')
+            return
+    # while True:
+    #     i_dont_know_col = random.randint(0, 2)
+    #     i_dont_know_row = random.randint(0, 2)
+    #     if board_2d[i_dont_know_row][i_dont_know_col] == 0:
+    #         board_2d[i_dont_know_row][i_dont_know_col] = 2
+    #         input('ai ended turn5  ')
+    #         return
+
 
 '''
     temp_list = []
@@ -162,16 +209,6 @@ def block(board_2d):
 #             if cross0sum[x] == 0:
 #                 return x, x
 
-def finish_board(board_2d):
-    for each_row in board_2d:
-        for i in range(len(each_row)):
-            if each_row[i] == 0:
-                each_row[i] = 2
-                if check_game_over(board_2d)[0]:
-                    return
-                else:
-                    each_row[i] = 0
-
 def print_board(board_2d):
     for n, each_row in enumerate(board_2d):
         print(Fore.WHITE + '\033[{};{}H'.format(n*2+BOARD_ROW, BOARD_COL), end='')
@@ -235,9 +272,9 @@ def check_pos_clear(board_2d, row, col):
         return False
 
 
-game_board = [[1, 0, 0],
+game_board = [[0, 0, 0],
               [0, 0, 0],
-              [0, 0, 1]]
+              [0, 0, 0]]
 
 print_board(game_board)
 # print(check_game_over(game_board))
@@ -251,7 +288,11 @@ while True:
         if check_game_over(game_board)[0] == True and check_game_over(game_board)[1] != 0:
             print(Fore.WHITE + '\033[{};5H'.format(BOARD_ROW + 7) + "                                ")
             print(Fore.WHITE + '\033[{};17H'.format(BOARD_ROW + 6) + str(check_game_over(game_board)[1]) + ' Wins!')
-            break
+            os.system(exit())
+        elif check_game_over(game_board)[0]:
+            print(Fore.WHITE + '\033[{};5H'.format(BOARD_ROW + 7) + "                                ")
+            print(Fore.WHITE + '\033[{};15H'.format(BOARD_ROW + 6) + "It's a tie!")
+            os.system(exit())
         # elif check_game_over(game_board)[0] == True and check_game_over(game_board)[1] == 'X':
         #     print(Fore.WHITE + '\033[{};5H'.format(BOARD_ROW + 7) + "                                ")
         #     print(Fore.WHITE + '\033[{};17H'.format(BOARD_ROW + 6) + str(check_game_over(game_board)[1]) + ' Wins!')
@@ -298,9 +339,13 @@ while True:
             last_turn_taken *= -1
         else:
             print(Fore.WHITE + '\033[{};5H'.format(BOARD_ROW + 8) + "Error: invalid move or spot is already taken!")
-        if check_game_over(game_board)[0]:
+        if check_game_over(game_board)[0] and check_game_over(game_board)[1] != 0:
             print(Fore.WHITE + '\033[{};5H'.format(BOARD_ROW + 7) + "                                ")
             print(Fore.WHITE + '\033[{};17H'.format(BOARD_ROW + 6) + str(check_game_over(game_board)[1]) + ' Wins!')
+            os.system(exit())
+        elif check_game_over(game_board)[0]:
+            print(Fore.WHITE + '\033[{};5H'.format(BOARD_ROW + 7) + "                                ")
+            print(Fore.WHITE + '\033[{};15H'.format(BOARD_ROW + 6) + "It's a tie!")
             os.system(exit())
 
     # 1 is O
