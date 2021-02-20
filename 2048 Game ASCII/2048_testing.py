@@ -61,7 +61,7 @@ def game_over(board_2d):
     return True
 
 
-def shift_cells(original_list):
+def shift_left(original_list):
     temporary_list = []
     final_list = []
 
@@ -102,6 +102,18 @@ def shift_cells(original_list):
     else:
         print(final_list)
         
+def shift_right(alist):
+    for x in range(5):
+        # There was a bug where if the row was full of the same integer e.g. [2, 2, 2, 2]
+        # it would return [0, 4, 0 ,4] not [0, 0, 4, 4]
+        for i in range(len(alist)-1):
+            current_value = alist[i]
+            next_value = alist[i+1]
+            if next_value == 0:
+                alist[i], alist[i+1] = 0, current_value
+            elif current_value == next_value:
+                alist[i], alist[i+1] = 0, current_value*2
+    print(alist)
 
 # directions are: 0: up, 1: right, 2: down, 3: left
 def play(gb, direction):
@@ -165,86 +177,169 @@ gb = [[8, 2, 4, 8],
       [8, 2, 4, 64]]
 print("Should be true: ", game_over(gb))
 
-# test cases for shift_cells
+# test cases for shift_left
 # make sure your code can pass these test cases
 
 sl = [0] * 4
-shift_cells(sl)
+shift_left(sl)
 
 sl = [2, 0, 0, 0]
-shift_cells(sl)
+shift_left(sl)
 
 sl = [0, 2, 0, 0]
-shift_cells(sl)
+shift_left(sl)
 
 sl = [0, 0, 0, 2]
-shift_cells(sl)
+shift_left(sl)
 
 sl = [0, 2, 0, 4]
-shift_cells(sl)
+shift_left(sl)
 
 sl = [0, 2, 4, 8]
-shift_cells(sl)
+shift_left(sl)
 
 sl = [2, 2, 0, 0]
-shift_cells(sl)
+shift_left(sl)
 
 sl = [2, 0, 2, 0]
-shift_cells(sl)
+shift_left(sl)
 
 sl = [2, 0, 0, 2]
-shift_cells(sl)
+shift_left(sl)
 
 sl = [2, 2, 0, 2]
-shift_cells(sl)
+shift_left(sl)
 
 sl = [2, 0, 2, 2]
-shift_cells(sl)
+shift_left(sl)
 
 sl = [2, 2, 2, 2]
-shift_cells(sl)
+shift_left(sl)
 
 sl = [4, 2, 4, 2]
-shift_cells(sl)
+shift_left(sl)
 
 sl = [0, 2, 2, 0]
-shift_cells(sl)
+shift_left(sl)
 
 sl = [0, 2, 2, 4]
-shift_cells(sl)
+shift_left(sl)
 
 sl = [8, 4, 2, 2]
-shift_cells(sl)
+shift_left(sl)
 
 sl = [2, 2, 8, 4]
-shift_cells(sl)
+shift_left(sl)
 
 sl = [8, 4, 0, 4]
-shift_cells(sl)
+shift_left(sl)
 
 sl = [2, 16, 4, 4]
-shift_cells(sl)
+shift_left(sl)
 
 sl = [4, 16, 4, 4]
-shift_cells(sl)
+shift_left(sl)
 
 sl = [2, 2, 16, 8]
-shift_cells(sl)
+shift_left(sl)
 
 sl = [2, 4, 16, 16]
-shift_cells(sl)
+shift_left(sl)
 
 sl = [2, 2, 0, 32]
-shift_cells(sl)
+shift_left(sl)
 
 sl = [2, 2, 4, 32]
-shift_cells(sl)
+shift_left(sl)
 
 sl = [0, 8, 8, 2]
-shift_cells(sl)
+shift_left(sl)
 
 sl = [2, 8, 8, 0]
-shift_cells(sl)
+shift_left(sl)
 
 sl = [2, 0, 8, 8]
-shift_cells(sl)
+shift_left(sl)
+
+# shift_right() testing
+
+sl = [0] * 4
+shift_right(sl)
+
+sl = [2, 0, 0, 0]
+shift_right(sl)
+
+sl = [0, 2, 0, 0]
+shift_right(sl)
+
+sl = [0, 0, 0, 2]
+shift_right(sl)
+
+sl = [0, 2, 0, 4]
+shift_right(sl)
+
+sl = [0, 2, 4, 8]
+shift_right(sl)
+
+sl = [2, 2, 0, 0]
+shift_right(sl)
+
+sl = [2, 0, 2, 0]
+shift_right(sl)
+
+sl = [2, 0, 0, 2]
+shift_right(sl)
+
+sl = [2, 2, 0, 2]
+shift_right(sl)
+
+sl = [2, 0, 2, 2]
+shift_right(sl)
+
+sl = [2, 2, 2, 2]
+shift_right(sl)
+
+sl = [4, 2, 4, 2]
+shift_right(sl)
+
+sl = [0, 2, 2, 0]
+shift_right(sl)
+
+sl = [0, 2, 2, 4]
+shift_right(sl)
+
+sl = [8, 4, 2, 2]
+shift_right(sl)
+
+sl = [2, 2, 8, 4]
+shift_right(sl)
+
+sl = [8, 4, 0, 4]
+shift_right(sl)
+
+sl = [2, 16, 4, 4]
+shift_right(sl)
+
+sl = [4, 16, 4, 4]
+shift_right(sl)
+
+sl = [2, 2, 16, 8]
+shift_right(sl)
+
+sl = [2, 4, 16, 16]
+shift_right(sl)
+
+sl = [2, 2, 0, 32]
+shift_right(sl)
+
+sl = [2, 2, 4, 32]
+shift_right(sl)
+
+sl = [0, 8, 8, 2]
+shift_right(sl)
+
+sl = [2, 8, 8, 0]
+shift_right(sl)
+
+sl = [2, 0, 8, 8]
+shift_right(sl)

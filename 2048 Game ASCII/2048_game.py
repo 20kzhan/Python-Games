@@ -61,7 +61,7 @@ def game_over(board_2d):
     return True
 
 
-def shift_cells(original_list):
+def shift_left(original_list):
     temporary_list = []
     final_list = []
 
@@ -101,7 +101,16 @@ def shift_cells(original_list):
         print(temporary_list)
     else:
         print(final_list)
-        
+
+def shift(alist):
+    for i in range(len(alist)-1):
+        current_value = alist[i]
+        next_value = alist[i+1]
+        if next_value == 0:
+            alist[i], alist[i+1] = 0, current_value
+        elif current_value == next_value:
+            alist[i], alist[i+1] = 0, current_value*2
+    return alist
 
 # directions are: 0: up, 1: right, 2: down, 3: left
 def play(gb, direction):
