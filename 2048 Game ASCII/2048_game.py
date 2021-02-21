@@ -102,7 +102,7 @@ def shift_left(original_list):
     else:
         print(final_list)
 
-def shift(alist):
+def shift_right(alist):
     for i in range(len(alist)-1):
         current_value = alist[i]
         next_value = alist[i+1]

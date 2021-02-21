@@ -263,83 +263,112 @@ shift_left(sl)
 
 # shift_right() testing
 
+print('\n')
+
 sl = [0] * 4
+print('Original:', sl)
 shift_right(sl)
 
 sl = [2, 0, 0, 0]
+print('Original:', sl)
 shift_right(sl)
 
 sl = [0, 2, 0, 0]
+print('Original:', sl)
 shift_right(sl)
 
 sl = [0, 0, 0, 2]
+print('Original:', sl)
 shift_right(sl)
 
 sl = [0, 2, 0, 4]
+print('Original:', sl)
 shift_right(sl)
 
 sl = [0, 2, 4, 8]
+print('Original:', sl)
 shift_right(sl)
 
 sl = [2, 2, 0, 0]
+print('Original:', sl)
 shift_right(sl)
 
 sl = [2, 0, 2, 0]
+print('Original:', sl)
 shift_right(sl)
 
 sl = [2, 0, 0, 2]
+print('Original:', sl)
 shift_right(sl)
 
 sl = [2, 2, 0, 2]
+print('Original:', sl)
 shift_right(sl)
 
 sl = [2, 0, 2, 2]
+print('Original:', sl)
 shift_right(sl)
 
 sl = [2, 2, 2, 2]
+print('Original:', sl)
 shift_right(sl)
 
 sl = [4, 2, 4, 2]
+print('Original:', sl)
 shift_right(sl)
 
 sl = [0, 2, 2, 0]
+print('Original:', sl)
 shift_right(sl)
 
 sl = [0, 2, 2, 4]
+print('Original:', sl)
 shift_right(sl)
 
 sl = [8, 4, 2, 2]
+print('Original:', sl)
 shift_right(sl)
 
 sl = [2, 2, 8, 4]
+print('Original:', sl)
 shift_right(sl)
 
 sl = [8, 4, 0, 4]
+print('Original:', sl)
 shift_right(sl)
 
 sl = [2, 16, 4, 4]
+print('Original:', sl)
 shift_right(sl)
 
 sl = [4, 16, 4, 4]
+print('Original:', sl)
 shift_right(sl)
 
 sl = [2, 2, 16, 8]
+print('Original:', sl)
 shift_right(sl)
 
 sl = [2, 4, 16, 16]
+print('Original:', sl)
 shift_right(sl)
 
 sl = [2, 2, 0, 32]
+print('Original:', sl)
 shift_right(sl)
 
 sl = [2, 2, 4, 32]
+print('Original:', sl)
 shift_right(sl)
 
 sl = [0, 8, 8, 2]
+print('Original:', sl)
 shift_right(sl)
 
 sl = [2, 8, 8, 0]
+print('Original:', sl)
 shift_right(sl)
 
 sl = [2, 0, 8, 8]
+print('Original:', sl)
 shift_right(sl)
