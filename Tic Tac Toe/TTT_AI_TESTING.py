@@ -82,6 +82,8 @@ def finish_board(board_2d):
     return False
 
 def ai_next_move(board_2d):
+    if check_game_over(board_2d)[0]:
+        return
     # input('ai used next move')
     turns_taken = 0
     for each_row in board_2d:
@@ -133,12 +135,15 @@ def ai_next_move(board_2d):
                 return
 
 def dumb_ai(board2d):
+    if check_game_over(board2d)[0]:
+        return
     while True:
         row = randint(0, 2)
         col = randint(0, 2)
-        if game_board[row][col] == 0:
-            game_board[row][col] = 1
+        if board2d[row][col] == 0:
+            board2d[row][col] = 1
             return
+
 
 
 '''
@@ -279,6 +284,16 @@ def check_pos_clear(board_2d, row, col):
     else:
         return False
 
+# game_board = [[2, 2, 1],
+#               [1, 1, 2],
+#               [2, 1, 1]]
+#
+# print_board(game_board)
+# print(check_game_over(game_board))
+
+x_win_count = 0
+tie_count = 0
+
 while True:
     game_board = [[0, 0, 0],
                   [0, 0, 0],
@@ -294,53 +309,37 @@ while True:
             dumb_ai(game_board)
             print_board(game_board)
             last_turn_taken *= -1
-
-        if last_turn_taken == -1:
+        else:
             ai_next_move(game_board)
             print_board(game_board)
-            if check_game_over(game_board)[0] == True and check_game_over(game_board)[1] != 0:
-                print(Fore.WHITE + '\033[{};5H'.format(BOARD_ROW + 7) + "                                ")
-                print(Fore.WHITE + '\033[{};17H'.format(BOARD_ROW + 6) + str(check_game_over(game_board)[1]) + ' Wins!')
-                break
-            elif check_game_over(game_board)[0]:
-                print(Fore.WHITE + '\033[{};5H'.format(BOARD_ROW + 7) + "                                ")
-                print(Fore.WHITE + '\033[{};15H'.format(BOARD_ROW + 6) + "It's a tie!")
-                break
             # elif check_game_over(game_board)[0] == True and check_game_over(game_board)[1] == 'X':
             #     print(Fore.WHITE + '\033[{};5H'.format(BOARD_ROW + 7) + "                                ")
             #     print(Fore.WHITE + '\033[{};17H'.format(BOARD_ROW + 6) + str(check_game_over(game_board)[1]) + ' Wins!')
             #     break
             last_turn_taken *= -1
+
         if msvcrt.kbhit():
             c = msvcrt.getch()
             if c == b'c':
                 break
-        if check_game_over(game_board)[0] and check_game_over(game_board)[1] == 2:
+        if check_game_over(game_board)[0] and check_game_over(game_board)[1] == 0:
             print(Fore.WHITE + '\033[{};5H'.format(BOARD_ROW + 7) + "                                ")
+            tie_count += 1
+            print(Fore.WHITE + '\033[{};15H'.format(BOARD_ROW + 2) + "    It's a tie!     ")
+            game_board = [[0, 0, 0],
+                          [0, 0, 0],
+                          [0, 0, 0]]
+            break
+        elif check_game_over(game_board)[0] and check_game_over(game_board)[1] == 'X':
+            print(Fore.WHITE + '\033[{};5H'.format(BOARD_ROW + 7) + "                                 ")
+            x_win_count += 1
             print(Fore.WHITE + '\033[{};17H'.format(BOARD_ROW + 6) + 'X Wins!')
             game_board = [[0, 0, 0],
                           [0, 0, 0],
                           [0, 0, 0]]
-
-            break
-
-        elif check_game_over(game_board)[0] and check_game_over(game_board)[1] == 0:
-            print(Fore.WHITE + '\033[{};5H'.format(BOARD_ROW + 7) + "                                ")
-            print(Fore.WHITE + '\033[{};15H'.format(BOARD_ROW + 6) + "It's a tie!")
-            game_board = [[0, 0, 0],
-                          [0, 0, 0],
-                          [0, 0, 0]]
-
             break
         elif check_game_over(game_board)[0] and check_game_over(game_board)[1] == 'O':
             os.system(exit())
 
-
-        # 1 is O
-
-        if last_turn_taken == -1:
-            print(Fore.WHITE + '\033[{};5H'.format(BOARD_ROW + 7) + "X's turn, please make your move:")
-        else:
-            print(Fore.WHITE + '\033[{};5H'.format(BOARD_ROW + 7) + "O's turn, please make your move:")
-
-        time.sleep(0.05)
+        print(Fore.WHITE + '\033[{};5H'.format(BOARD_ROW + 15) + str(x_win_count))
+        print(Fore.WHITE + '\033[{};5H'.format(BOARD_ROW + 16) + str(tie_count))
