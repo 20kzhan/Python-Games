@@ -5,6 +5,18 @@ from game_2048 import *
 # test cases for game_over
 # make sure your code can pass these test cases
 
+gb = [[1, 2, 3, 4],
+      [5, 6, 7, 8],
+      [9, 10, 11, 12],
+      [13, 14, 15, 16]]
+
+rotated_board = rotate_board(gb)
+
+for each_row in rotated_board:
+    print(each_row)
+
+print()
+
 gb = [[0, 2, 2, 2],
       [2, 0, 2, 2],
       [2, 2, 0, 2],

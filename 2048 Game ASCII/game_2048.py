@@ -27,16 +27,27 @@ game_board = [[0, 0, 0, 0],
               [0, 0, 0, 0],
               [0, 0, 0, 0]]
 
+horizontal_divider = ['------' * 4] * 3 + ['']
+
+vertical_divider = ['|'] * 3 + ['']
+
+
 def print_board(board_2d):
     offset = 0
     row_offset = 0
     for n, each_row in enumerate(board_2d):
         for i in range(len(board_2d[0])):
-            print(Fore.WHITE +
-                  '\033[{};{}H'.format(5+n+row_offset, 15+i+offset) + ' ' +
-                  str(each_row[i]) + ' ')
-            offset += 3
+            if each_row[i] != 0:
+                print(Fore.WHITE +
+                      '\033[{};{}H'.format(5+n+row_offset, 15+i+offset) +
+                      str(each_row[i]).center(5) + vertical_divider[i])
+            else:
+                print(Fore.WHITE +
+                      '\033[{};{}H'.format(5 + n + row_offset, 15 + i + offset) + "     " + vertical_divider[i])
+            offset += 6
         offset = 0
+        print(Fore.WHITE +
+              '\033[{};{}H'.format(6 + n + row_offset, 15 + offset) + horizontal_divider[n])
         row_offset += 1
 
 def place_new_value(board_2d):
@@ -145,7 +156,8 @@ if __name__ == "__main__":
     #       [34, 43, 31, 21],
     #       [12, 56, 67, 85]]
 
-    # place_new_value(game_board)
+    place_new_value(game_board)
+    place_new_value(game_board)
     while True:
         print_board(game_board)
         for each_row in game_board:
