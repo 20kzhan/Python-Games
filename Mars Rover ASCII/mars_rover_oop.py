@@ -5,9 +5,9 @@ from time import *
 from colorama import Fore, Back, Style, init
 from enum import Enum
 
-ROVER_ROW = 40
+ROVER_ROW = 33
 ROVER_COL = 40
-SCREEN_HEIGHT = 50
+SCREEN_HEIGHT = 40
 SCREEN_WIDTH = 100
 TEXT_POS = '\033[{};{}H'
 
@@ -24,6 +24,18 @@ BOULDER_IMAGE = [' O ',
                  'OOO',
                  ' O ']
 
+# def common_values(d1, d2):
+    # set1 = set(d1.keys())
+    # set2 = set(d2.keys())
+    # com_keys = set1.intersection(set2)
+    # com_values = []
+    #
+    # for key in com_keys:
+    #     val1_set = set(d1[key])
+    #     val2_set = set(d2[key])
+    #     com_values += val1_set.intersection(val2_set)
+    #
+    # return len(com_values) > 0
 
 class Direction(Enum):
     UP = 1
@@ -41,8 +53,11 @@ class TermPos:
         return s
 
 class Boulder:
+    image = BOULDER_IMAGE
     def __init__(self, color=Fore.WHITE, col_inc=0,
-                 row=1, col=randint(1, SCREEN_WIDTH - len(BOULDER_IMAGE[0]))):
+                 row=1, col=None):
+        if col is None:
+            col = randint(1, SCREEN_WIDTH - len(BOULDER_IMAGE[0]))
         self._row = row
         self._col = col
         self._color = color
@@ -73,6 +88,45 @@ class Boulder:
     def is_done(self):
         if self._row >= SCREEN_HEIGHT:
             return True
+
+    def get_map(self):
+        output = {}
+        obj_col = []
+        for i in range(len(self.image)):
+            for y in range(len(self.image[i])):
+                if ' ' != self.image[i][y]:
+                    obj_col.append(self._col + y)
+            output[self._row + i] = obj_col
+            obj_col = []
+        return output
+
+    def has_collided(self, other):
+        boulder_map = other.get_map()
+        rover_map = self.get_map()
+
+        set1 = set(boulder_map.keys())
+        set2 = set(rover_map.keys())
+        com_keys = set1.intersection(set2)
+        com_values = []
+
+        for key in com_keys:
+            val1_set = set(boulder_map[key])
+            val2_set = set(rover_map[key])
+            com_values += val1_set.intersection(val2_set)
+
+        print(str(TermPos(SCREEN_HEIGHT+5, 1)) + str(com_values) + ' '*12)
+        return len(com_values) > 0
+
+    def get_map(self):
+        output = {}
+        obj_col = []
+        for i in range(len(self.image)):
+            for y in range(len(self.image[i])):
+                if ' ' != self.image[i][y]:
+                    obj_col.append(self._col + y)
+            output[self._row + i] = obj_col
+            obj_col = []
+        return output
 
 class Missile:
     color = MISSILE_COLOR
@@ -106,19 +160,38 @@ class Missile:
         if self._row == 1:
             return True
 
+    def get_map(self):
+        output = {}
+        obj_col = []
+        for i in range(len(self.image)):
+            for y in range(len(self.image[i])):
+                if ' ' != self.image[i][y]:
+                    obj_col.append(self._col + y)
+            output[self._row + i] = obj_col
+            obj_col = []
+        return output
+
 class Obstacle:
-    def __init__(self, num_boulders):
+    def __init__(self, num_boulders, prob=5):
         self._boulders = []
         self._max_boulders = num_boulders
+        self._prob = prob
+        self._rover = rover
 
-    def animate(self):
-        if len(self._boulders) < self._max_boulders and randint(1, 2) == 1:
-            self._boulders.append(Boulder(row=1, col=randint(1, SCREEN_WIDTH - len(BOULDER_IMAGE[0]))))
+    def animate(self): 
+        if len(self._boulders) < self._max_boulders and randint(1, self._prob) == 1:
+            self._boulders.append(Boulder())
         for i, b in enumerate(self._boulders):
             b.move()
             if b.is_done():
                 b.clear()
                 self._boulders.pop(i)
+
+    def has_collided(self, other):
+        for b in self._boulders:
+            if b.has_collided(other):
+                return True
+        return False
 
 class Weapon:
     def __init__(self, num_missiles):
@@ -174,7 +247,7 @@ class Rover:
             self.clear()
             self._row -= 1
             self.draw()
-        if direction == Direction.DOWN and self._row <= 39:
+        if direction == Direction.DOWN and self._row <= SCREEN_HEIGHT-len(self.image)-1:
             self.clear()
             self._row += 1
             self.draw()
@@ -182,7 +255,7 @@ class Rover:
             self.clear()
             self._col -= 1
             self.draw()
-        if direction == Direction.RIGHT and self._col <= 80:
+        if direction == Direction.RIGHT and self._col <= SCREEN_WIDTH:
             self.clear()
             self._col += 1
             self.draw()
@@ -192,8 +265,33 @@ class Rover:
         # 3. call draw() to print the rover in the new position
         pass
 
+    def get_map(self):
+        output = {}
+        obj_col = []
+        for i in range(len(self.image)):
+            for y in range(len(self.image[i])):
+                if ' ' != self.image[i][y]:
+                    obj_col.append(self._col + y)
+            output[self._row + i] = obj_col
+            obj_col = []
+        return output
+
     def has_collided(self, other):
-        pass
+        boulder_map = other.get_map()
+        rover_map = self.get_map()
+
+        set1 = set(boulder_map.keys())
+        set2 = set(rover_map.keys())
+        com_keys = set1.intersection(set2)
+        com_values = []
+
+        for key in com_keys:
+            val1_set = set(boulder_map[key])
+            val2_set = set(rover_map[key])
+            com_values += val1_set.intersection(val2_set)
+
+        print(str(TermPos(SCREEN_HEIGHT+5, 1)) + str(com_values) + ' '*12)
+        return len(com_values) > 0
 
     def get_position(self):
         pass
@@ -220,34 +318,35 @@ if os.name == "nt":
     ci.visible = False
     ctypes.windll.kernel32.SetConsoleCursorInfo(handle, ctypes.byref(ci))
 
-rover = Rover()
-rover.draw()
+if __name__ == "__main__":
+    rover = Rover()
+    rover.draw()
 
-mars_obstacles1 = Obstacle(7)
+    mars_obstacles1 = Obstacle(7)
 
-weapon1 = Weapon(6)
-while True:
-    if msvcrt.kbhit():
-        c = msvcrt.getch()
-        if c == b'\xe0':
+    weapon1 = Weapon(6)
+    while True:
+        if msvcrt.kbhit():
             c = msvcrt.getch()
-            if c == b'H':
-                print(Fore.GREEN + '\033[1;1H' + "up pressed       ")
-                rover.move(Direction.UP)
-            elif c == b'M':
-                rover.move(Direction.RIGHT)
-                print(Fore.GREEN + '\033[1;1H' + "right pressed    ")
-            elif c == b'K':
-                rover.move(Direction.LEFT)
-                print(Fore.GREEN + '\033[1;1H' + "left pressed     ")
-            elif c == b'P':
-                rover.move(Direction.DOWN)
-                print(Fore.GREEN + '\033[1;1H' + "down pressed     ")
-        if c == b' ':
-            print(Fore.GREEN + '\033[1;1H' + "space pressed     ")
-            # weapon1.fire(rover.get_gun_position()[0], rover.get_gun_position()[1])
-            weapon1.fire(*rover.get_gun_position())
-    weapon1.animate()
-    mars_obstacles1.animate()
-    # print(str(TermPos(1, 1)) + ' ' * 80)
-    sleep(.08)
+            if c == b'\xe0':
+                c = msvcrt.getch()
+                if c == b'H':
+                    print(Fore.GREEN + '\033[1;1H' + "up pressed       ")
+                    rover.move(Direction.UP)
+                elif c == b'M':
+                    rover.move(Direction.RIGHT)
+                    print(Fore.GREEN + '\033[1;1H' + "right pressed    ")
+                elif c == b'K':
+                    rover.move(Direction.LEFT)
+                    print(Fore.GREEN + '\033[1;1H' + "left pressed     ")
+                elif c == b'P':
+                    rover.move(Direction.DOWN)
+                    print(Fore.GREEN + '\033[1;1H' + "down pressed     ")
+            if c == b' ':
+                print(Fore.GREEN + '\033[1;1H' + "space pressed     ")
+                # weapon1.fire(rover.get_gun_position()[0], rover.get_gun_position()[1])
+                weapon1.fire(*rover.get_gun_position())
+        weapon1.animate()
+        mars_obstacles1.animate()
+        # print(str(TermPos(1, 1)) + ' ' * 80)
+        sleep(.08)
