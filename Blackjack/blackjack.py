@@ -1,4 +1,23 @@
 import random
+import os, sys
+
+# for windows OS
+if os.name == "nt":
+    os.system("cls")
+
+    import ctypes
+
+
+    class _CursorInfo(ctypes.Structure):
+        _fields_ = [("size", ctypes.c_int),
+                    ("visible", ctypes.c_byte)]
+
+
+    ci = _CursorInfo()
+    handle = ctypes.windll.kernel32.GetStdHandle(-11)
+    ctypes.windll.kernel32.GetConsoleCursorInfo(handle, ctypes.byref(ci))
+    ci.visible = False
+    ctypes.windll.kernel32.SetConsoleCursorInfo(handle, ctypes.byref(ci))
 
 
 class Card:
@@ -65,16 +84,17 @@ class Card:
         for index, line in enumerate(self.CARD_IMAGE):
             if index == 2:
                 image.append(line[0] + \
-                            (self.get_rank_image() if not covered else self.CARD_RANKS[-1]) + \
-                            line[1])
+                             (self.get_rank_image() if not covered else self.CARD_RANKS[-1]) + \
+                             line[1])
             elif index == 4:
                 image.append(line[0] + \
-                            (self.get_suit_image() if not covered else self.CARD_SUITS[-1]) + \
-                            line[1])
+                             (self.get_suit_image() if not covered else self.CARD_SUITS[-1]) + \
+                             line[1])
             else:
                 image.append(line)
 
         return image
+
 
 class BJHand:
     # This class implements a hand of BJ cards with following functionality
@@ -85,7 +105,7 @@ class BJHand:
     def __init__(self, cards=None):
         self._hand = []
 
-    def print(self, col_size=2, cover_first_card=True):
+    def print(self, col_size=2, cover_first_card=False):
         # prints the entire hand vertically, how many cards across?
         card_img_list = []
         for i in range(len(self._hand)):
@@ -93,12 +113,19 @@ class BJHand:
                 card_img_list.append(self._hand[i].get_card_image(cover_first_card))
             else:
                 card_img_list.append(self._hand[i].get_card_image())
-        for x in range(8):
-            test = [i[x] for i in card_img_list]
-            for y in range(len(test)):
-                print(test[y], end='')
-            print()
-
+        # for x in range(8):
+        #     test = [i[x] for i in card_img_list]
+        #     for y in range(len(test)):
+        #         print(test[y], end='')
+        #     print()
+        for multiple in range(len(card_img_list) // col_size + 1):
+            for image_line_index in range(len(card_img_list[0])):
+                for i in range(col_size):
+                    card_img_id = multiple * col_size + i
+                    if card_img_id < len(card_img_list):
+                        print(card_img_list[card_img_id][image_line_index], end='')
+                print()
+        print()
 
     def get_score(self):
         # returns the value of the entire hand
@@ -120,7 +147,7 @@ class BJHand:
     def get_num_cards(self):
         return len(self._hand)
 
-    def add_card(self, card):
+    def add_card(self):
         self._hand.append(Card())
 
 
@@ -155,22 +182,81 @@ class CardDeck:
 
 class BJGame:
     def __init__(self):
-        pass
+        self._player = BJHand()
+        self._dealer = BJHand()
+        for i in range(2):
+            self._dealer.add_card()
+            self._player.add_card()
+        print("Player's Hand:")
+        self._player.print(cover_first_card=False)
+        print("Dealer's Hand:")
+        self._dealer.print(cover_first_card=True)
 
     def play(self):
-        pass
+        player_stand = False
+
+        if input("Hit or stay? (Enter h or s) ") == 'h' and not player_stand:
+            self._player.add_card()
+        else:
+            player_stand = True
+
+        if self._dealer.get_score() < 16:
+            self._dealer.add_card()
+        elif random.randint(1, 4) == 4:
+            self._dealer.add_card()
+
+        if player_stand:
+            print("Dealer's turn to play:")
+        print("Player's Hand:")
+        self._player.print(cover_first_card=False)
+        print("Dealer's Hand:")
+        self._dealer.print(cover_first_card=False)
+
+        if self._player.is_bust():
+            print('**************Player bust!**************')
+            print('Dealer won!')
+            self.reset_game()
+        elif self._player.get_score() == 21:
+            print('**************Blackjack!**************')
+            print('Player won!\n')
+            self.reset_game()
+
+        if self._dealer.is_bust():
+            print('**************Dealer bust!**************')
+            print('Player won!')
+            self.reset_game()
+        elif self._dealer.get_score() == 21:
+            print('**************Blackjack!**************')
+            print('Dealer won!\n')
+            self.reset_game()
+
+
+    def reset_game(self):
+        if input('Do you want to play another game? (y/n) ') == 'y':
+            self._player = BJHand()
+            self._dealer = BJHand()
+            for i in range(2):
+                self._dealer.add_card()
+                self._player.add_card()
+            self.play()
+        else:
+            os.system(exit())
+
 
 if __name__ == '__main__':
-    card_deck1 = CardDeck()
-
-    player = BJHand()
-    dealer = BJHand()
-
-    player.add_card((card_deck1.deal_card()))
-    player.add_card((card_deck1.deal_card()))
-    player.add_card((card_deck1.deal_card()))
-
-    player.print()
+    game = BJGame()
+    while True:
+        game.play()
+    # card_deck1 = CardDeck()
+    #
+    # player = BJHand()
+    # dealer = BJHand()
+    #
+    # player.add_card((card_deck1.deal_card()))
+    # player.add_card((card_deck1.deal_card()))
+    # player.add_card((card_deck1.deal_card()))
+    #
+    # player.print()
 
     # while True:
     #     card1 = Card(value=-1)
