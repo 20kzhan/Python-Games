@@ -102,12 +102,14 @@ class BJHand:
     #   2. Computes the hand's total value, whether the hand is a bust, etc
     CARD_VALUES = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10]
 
-    def __init__(self, cards=None):
+    def __init__(self, name):
+        self._player_name = name
         self._hand = []
 
     def print(self, col_size=2, cover_first_card=False):
         # prints the entire hand vertically, how many cards across?
         card_img_list = []
+        print(f"{self._player_name}'s hand:")
         for i in range(len(self._hand)):
             if i == 0:
                 card_img_list.append(self._hand[i].get_card_image(cover_first_card))
@@ -147,8 +149,8 @@ class BJHand:
     def get_num_cards(self):
         return len(self._hand)
 
-    def add_card(self):
-        self._hand.append(Card())
+    def add_card(self, card=Card()):
+        self._hand.append(card)
 
 
 class CardDeck:
@@ -182,63 +184,116 @@ class CardDeck:
 
 class BJGame:
     def __init__(self):
-        self._player = BJHand()
-        self._dealer = BJHand()
-        for i in range(2):
-            self._dealer.add_card()
-            self._player.add_card()
-        print("Player's Hand:")
-        self._player.print(cover_first_card=False)
-        print("Dealer's Hand:")
-        self._dealer.print(cover_first_card=True)
+        pass
 
-    def play(self):
-        player_stand = False
+    def player(self):
+        state = 0
 
-        if input("Hit or stay? (Enter h or s) ") == 'h' and not player_stand:
-            self._player.add_card()
-        else:
-            player_stand = True
+        while True:
+            if state == 0:
+                deck = CardDeck()
+                deck.shuffle()
+                state = 1
 
-        if self._dealer.get_score() < 16:
-            self._dealer.add_card()
-        elif random.randint(1, 4) == 4:
-            self._dealer.add_card()
+            if state == 1:
+                deck.shuffle()
+                player = BJHand("Player")
+                dealer = BJHand("Dealer")
+                for i in range(2):
+                    dealer.add_card(deck.deal_card())
+                    player.add_card(deck.deal_card())
+                player.print(cover_first_card=False)
+                dealer.print(cover_first_card=True)
+                state = 2
 
-        if player_stand:
-            print("Dealer's turn to play:")
-        print("Player's Hand:")
-        self._player.print(cover_first_card=False)
-        print("Dealer's Hand:")
-        self._dealer.print(cover_first_card=False)
+            if state == 2:
+                if player.get_score() == 21:
+                    state = 4
+                if input("Hit or stay? (Enter h or s) ") == 'h':
+                    player.add_card(deck.deal_card())
+                    player.print(cover_first_card=False)
+                    dealer.print(cover_first_card=False)
+                    if player.get_score() == 21:
+                        state = 4
 
-        if self._player.is_bust():
-            print('**************Player bust!**************')
-            print('Dealer won!')
-            self.reset_game()
-        elif self._player.get_score() == 21:
-            print('**************Blackjack!**************')
-            print('Player won!\n')
-            self.reset_game()
+                    elif player.is_bust():
+                        state = 4
+                else:
+                    state = 3
 
-        if self._dealer.is_bust():
-            print('**************Dealer bust!**************')
-            print('Player won!')
-            self.reset_game()
-        elif self._dealer.get_score() == 21:
-            print('**************Blackjack!**************')
-            print('Dealer won!\n')
-            self.reset_game()
+            if state == 3:
+                print('b')
+                if dealer.get_score() <= 16:
+                    dealer.add_card(deck.deal_card())
+                    if dealer.is_bust():
+                        state = 4
+                else:
+                    state = 4
 
+            if state == 4:
+                player.print(cover_first_card=False)
+                dealer.print(cover_first_card=False)
+                if player.get_score() == dealer.get_score():
+                    print("It's a tie!\n")
+                elif player.get_score() < dealer.get_score():
+                    print('Dealer won!\n')
+                elif player.get_score() < dealer.get_score():
+                    print('Player won!\n')
+                elif player.get_score() == 21:
+                    print('**************Blackjack!**************')
+                    print('Player won!\n')
+                elif dealer.get_score() == 21:
+                    print('**************Blackjack!**************')
+                    print('Dealer won!\n')
+                elif player.is_bust():
+                    print('**************Player bust!**************')
+                    print('Dealer won!')
+                elif dealer.is_bust():
+                    print('**************Dealer bust!**************')
+                    print('Player won!')
+                self.reset_game()
+                state = 1
+
+    # def play(self):
+    #     player_stand = False
+    #
+    #     if input("Hit or stay? (Enter h or s) ") == 'h' and not player_stand:
+    #         self._player.add_card()
+    #     else:
+    #         player_stand = True
+    #     if self._player.is_bust():
+    #         print('**************Player bust!**************')
+    #         print('Dealer won!')
+    #         self.reset_game()
+    #     elif self._player.get_score() == 21:
+    #         print('**************Blackjack!**************')
+    #         print('Player won!\n')
+    #         self.reset_game()
+    #
+    #     if self._dealer.get_score() < 16:
+    #         self._dealer.add_card()
+    #     elif random.randint(1, 4) == 4:
+    #         self._dealer.add_card()
+    #
+    #     if player_stand:
+    #         print("Dealer's turn to play:")
+    #     self._player.print(cover_first_card=False)
+    #     self._dealer.print(cover_first_card=False)
+    #
+    #
+    #
+    #     if self._dealer.is_bust():
+    #         print('**************Dealer bust!**************')
+    #         print('Player won!')
+    #         self.reset_game()
+    #     elif self._dealer.get_score() == 21:
+    #         print('**************Blackjack!**************')
+    #         print('Dealer won!\n')
+    #         self.reset_game()
 
     def reset_game(self):
         if input('Do you want to play another game? (y/n) ') == 'y':
-            self._player = BJHand()
-            self._dealer = BJHand()
-            for i in range(2):
-                self._dealer.add_card()
-                self._player.add_card()
-            self.play()
+            pass
         else:
             os.system(exit())
 
@@ -246,7 +301,7 @@ class BJGame:
 if __name__ == '__main__':
     game = BJGame()
     while True:
-        game.play()
+        game.player()
     # card_deck1 = CardDeck()
     #
     # player = BJHand()
